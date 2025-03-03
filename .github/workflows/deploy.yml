@@ -23,10 +23,13 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@3.218.187.2 << 'EOF'                             # your-ec2-ip
-            cd /var/www/znz                                                  #################
-            git pull origin main
-            npm install --production
+          ssh -i ~/.ssh/id_rsa ubuntu@3.218.187.2 << 'EOF'
+            cd /var/www/znz
+            test -d /todo-api && sudo rm -rf /todo-api
+            git clone https://github.com/devops689/todo-api.git
+            cd /todo-api
+            git checkout main
+            sudo npm install --production
             pm2 restart SMAC || pm2 start ./src/index.js --name SMAC
             exit
           EOF

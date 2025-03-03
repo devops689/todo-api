@@ -18,24 +18,19 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 3.218.187.2 >> ~/.ssh/known_hosts
-          echo "SSH setup was Succesfull"
+          ssh-keyscan -H secrets.SERVER_IP >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@3.218.187.2 << 'EOF'
-            sudo chown -R ubuntu:ubuntu .
+          ssh -i ~/.ssh/id_rsa secrets.SERVER_USER@secrets.SERVER_IP << 'EOF'
+            sudo chown -R secrets.SERVER_USER:secrets.SERVER_USER .
             sudo chmod -R 755 .
             cd /var/www/znz
-            test -d /todo-api && sudo rm -rf /todo-api
-            git clone https://github.com/devops689/todo-api.git
-            echo "cloned repo..."
+            test -d /todo-api && sudo rm -rf ./*
+            git clone secrets.REPO_LINK
             cd /var/www/znz/todo-api
             git checkout main
-            echo "checked out main branch..."
             npm install --production
-            echo "installed npm packages..."
-            pm2 restart SMAC || pm2 start /var/www/znz/todo-api/src/index.js --name SMAC
+            pm2 restart /var/www/znz/todo-api/src/index.js
             exit
           EOF
-          echo "Deployment was Succesfull"

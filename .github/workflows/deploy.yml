@@ -38,6 +38,6 @@ jobs:
             echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
             echo "DB_USER=${{ secrets.DB_USER }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            pm2 restart /var/www/znz/todo-api/src/index.js
+            pm2 restart SMAC || pm2 start /var/www/znz/todo-api/src/index.js --name SMAC
             exit
           EOF

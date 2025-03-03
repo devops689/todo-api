@@ -1,37 +1,28 @@
 
-const asyncHandler = require("express-async-handler");
-
 const { Tasks, validateTask } = require("../models/tasks");
 
-const addNewTask = asyncHandler(async (req, res) => {
+const addNewTask = async (req, res) => {
 
   try {
 
     const { error } = validateTask(req.body);
     if (error) {
-        res.status(400);
         throw new Error(error);
     }
 
     let taskCreated = await Tasks.create(req.body);
     if (!taskCreated) {
-      res.status(400);
       throw new Error("Task cannot be added");
     }
     taskCreated = taskCreated.dataValues;
     taskCreated.days = Math.round((new Date() - new Date(taskCreated.createdAt)) / (1000 * 60 * 60 * 24));
-    return res.status(200).json(taskCreated);
+    res.status(200).send(taskCreated);
   } catch (error) {
-    throw new Error(
-      `${error.statusCode !== 400 && res.statusCode !== 400
-        ? "Something went wrong during create-op: "
-        : ""
-      }${error.message}`
-    );
+    res.status(500).send({ error: error.message });
   }
-});
+};
 
-const getAllTasks = asyncHandler(async (req, res) => {
+const getAllTasks = async (req, res) => {
 
   try {
 
@@ -47,25 +38,19 @@ const getAllTasks = asyncHandler(async (req, res) => {
       t.days = Math.round((today - new Date(t.createdAt)) / (1000 * 60 * 60 * 24));
       return t;
     });
-    return res.status(200).send(tasks);
+    res.status(200).send(tasks);
 
   } catch (error) {
-    throw new Error(
-      `${error.statusCode !== 400 && res.statusCode !== 400
-        ? "Something went wrong during fetch-op: "
-        : ""
-      }${error.message}`
-    );
+    res.status(500).send({ error: error.message });
   }
-});
+};
 
-const updateAnyTask = asyncHandler(async (req, res) => {
+const updateAnyTask = async (req, res) => {
 
   try {
 
     const { error } = validateTask(req.body);
     if (error) {
-        res.status(400);
         throw new Error(error);
     }
 
@@ -75,30 +60,23 @@ const updateAnyTask = asyncHandler(async (req, res) => {
       }
     });
     if (tasksUpdated[0] == 0) {
-      res.status(400);
-      throw new Error("No Task to update");
+      throw new Error("No Such Task to update");
     }
     //
     let taskUpdated = await Tasks.findByPk(req.body.id);
     if(!taskUpdated) {
-      res.status(400);
       throw new Error("Cannot get Updated task");
     }
     //
     taskUpdated = taskUpdated.dataValues;
     taskUpdated.days = Math.round((new Date() - new Date(taskUpdated.createdAt)) / (1000 * 60 * 60 * 24));
-    return res.status(200).json(taskUpdated);
+    res.status(200).send(taskUpdated);
   } catch (error) {
-    throw new Error(
-      `${error.statusCode !== 400 && res.statusCode !== 400
-        ? "Something went wrong during update-op: "
-        : ""
-      }${error.message}`
-    );
+    res.status(500).send({ error: error.message });
   }
-});
+};
 
-const removeAnyTask = asyncHandler(async (req, res) => {
+const removeAnyTask = async (req, res) => {
 
   try {
 
@@ -108,19 +86,14 @@ const removeAnyTask = asyncHandler(async (req, res) => {
       }
     });
     if (tasksDestroyed == 0) {
-      res.status(400);
-      throw new Error("No Task to delete");
+      console.log('kkkkkkkkkkkk')
+      throw new Error("No Such Task to delete");
     }
-    return res.status(200).json({ message: "Task was deleted." });
+    res.status(200).json({ message: "Task was deleted." });
   } catch (error) {
-    throw new Error(
-      `${error.statusCode !== 400 && res.statusCode !== 400
-        ? "Something went wrong during remove-op: "
-        : ""
-      }${error.message}`
-    );
+    res.status(500).send({ error: error.message });
   }
-});
+};
 
 
 module.exports = {

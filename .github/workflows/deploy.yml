@@ -12,27 +12,24 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        run: |
+          echo "Checkout was Succesfull"
 
       - name: Setup SSH Connection
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 3.84.99.241 >> ~/.ssh/known_hosts
-
-      #- name: Set Environment Variables
-      #  run: |
-      #    ssh -i ~/.ssh/id_rsa ubuntu@3.84.99.241 << 'EOF'
-      #      echo "APP_ENV=${{ secrets.APP_ENV }}" > /path/to/your/project/.env
-      #      exit
-      #    EOF
+          ssh-keyscan -H 3.218.187.2 >> ~/.ssh/known_hosts
+          echo "SSH setup was Succesfull"
 
       - name: Deploy to EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@3.84.99.241 << 'EOF'                             # your-ec2-ip
+          ssh -i ~/.ssh/id_rsa ubuntu@3.218.187.2 << 'EOF'                             # your-ec2-ip
             cd /var/www/znz                                                  #################
             git pull origin main
             npm install --production
-            pm2 restart Smac-test || pm2 start index.js --name Smac-test
+            pm2 restart SMAC || pm2 start index.js --name SMAC
             exit
           EOF
+          echo "Deployment was Succesfull"

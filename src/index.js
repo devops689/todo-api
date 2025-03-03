@@ -8,9 +8,10 @@ require("./db").connect();
 (async () => {
   try {
     await Tasks.sync();
-    return res.status(200).send(">>> Tables Synced Successfully");
+    console.log(">>> Tables Synced Successfully");
   } catch (error) {
-    return res.status(500).send(">>> Failed to Sync Tables: " + error);
+    console.log(">>> Failed to Sync Tables: " + error);
+    process.exit(1);
   }
 })();
 
@@ -18,6 +19,6 @@ app.use(cors());
 
 require("./routes/main")(app);
 
-app.listen(process.env.SERVER_PORT, () => {
-  console.log(`server listening on port ${process.env.SERVER_PORT}`)
+app.listen(process.env.SERVER_PORT || 3030, () => {
+  console.log(`server listening on port ${process.env.SERVER_PORT || 3030}`)
 });

@@ -25,11 +25,16 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@3.218.187.2 << 'EOF'
             cd /var/www/znz
+            sudo chown -R ubuntu:ubuntu .
+            sudo chmod -R 755 .
             test -d /todo-api && sudo rm -rf /todo-api
             git clone https://github.com/devops689/todo-api.git
+            echo "cloned repo..."
             cd /todo-api
             git checkout main
-            sudo npm install --production
+            echo "checked out main branch..."
+            npm install --production
+            echo "installed npm packages..."
             pm2 restart SMAC || pm2 start ./src/index.js --name SMAC
             exit
           EOF
